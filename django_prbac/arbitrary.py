@@ -6,7 +6,7 @@ from random import choice
 import uuid
 
 # Django imports
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 # Local Imports
 from django_prbac.models import *
@@ -40,14 +40,18 @@ def arbitrary_unique_slug(prefix=None, suffix=None):
 
 
 def arbitrary_user(username=None, password=None, email=None, save=True, **kwargs):
-    username = instantiate(username or arbitrary_unique_slug)[:74]
+    username = instantiate(username or arbitrary_unique_slug)[:32]
     password = instantiate(password or arbitrary_unique_slug)[:74]
     email = instantiate(email) if email is not None else ('%s@%s.com' % (arbitrary_unique_slug(), arbitrary_unique_slug()))[:74]
 
-    user = User(username=username,
-                password=password,
-                email=email,
-                **kwargs)
+    User = get_user_model()
+    kwargs.update({
+        User.USERNAME_FIELD: username,
+        'password': password,
+        'email': email,
+    })
+
+    user = User(**kwargs)
 
     if save:
         user.save()
