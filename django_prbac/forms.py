@@ -4,7 +4,7 @@ from __future__ import unicode_literals, absolute_import, print_function
 # System imports
 
 # Django imports
-from django.forms import ValidationError, Field, TextInput
+from django.forms import ValidationError, CharField, TextInput
 
 # External libraries
 import six
@@ -33,16 +33,16 @@ class StringSetInput(TextInput):
             return super(StringSetInput, self).render(name, rendered_value)
 
 
-class StringListFormField(Field):
+class StringListFormField(CharField):
+    widget = StringListInput
+
     """
     A Django form field for lists of strings separated by commas, quotes optional
     """
     def __init__(self, quotechar=None, skipinitialspace=None, *args, **kwargs):
         self.quotechar = (quotechar or '"')
         self.skipinitialspace = True if skipinitialspace is None else skipinitialspace
-        defaults = {'widget': StringListInput}
-        defaults.update(kwargs)
-        super(StringListFormField, self).__init__(*args, **defaults)
+        super(StringListFormField, self).__init__(*args, **kwargs)
 
     def is_string_list(self, value):
         return isinstance(value, list) and all([isinstance(v, six.string_types) for v in value])
